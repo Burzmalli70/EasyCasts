@@ -20,6 +20,7 @@ sealed class MainUiState {
     ) : MainUiState()
 
     data class Search(
-        val query: String?
+        val query: String? = null,
+        val results: List<Podcast>? = null
     ) : MainUiState()
 }

@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
                     Box(
                         modifier = Modifier.padding(it)
                     ) {
-                        NavigationGraph(navController = navController)
+                        NavigationGraph(navController = navController, viewModel = viewModel)
                     }
                 }
             }

@@ -3,4 +3,5 @@
     <string name="podcasts_tab">Podcasts</string>
     <string name="episodes_tab">Episodes</string>
     <string name="search_tab">Search</string>
+    <string name="podcast_image_content">Podcast image</string>
 </resources>

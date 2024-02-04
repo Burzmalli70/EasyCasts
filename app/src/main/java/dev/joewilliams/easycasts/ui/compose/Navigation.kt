@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import dev.joewilliams.easycasts.R
+import dev.joewilliams.easycasts.viewmodel.MainViewModel
 
 @Composable
 fun MainBottomNavigationBar(
@@ -58,7 +59,7 @@ sealed class NavScreen(
 }
 
 @Composable
-fun NavigationGraph(navController: NavHostController) {
+fun NavigationGraph(navController: NavHostController, viewModel: MainViewModel) {
     NavHost(
         navController = navController,
         startDestination = NavScreen.PodcastList.route
@@ -70,7 +71,7 @@ fun NavigationGraph(navController: NavHostController) {
             EpisodeDetail()
         }
         composable(route = NavScreen.Search.route) {
-            Search()
+            Search(viewModel = viewModel)
         }
     }
 }
