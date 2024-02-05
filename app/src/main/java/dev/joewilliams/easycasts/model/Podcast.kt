@@ -1,12 +1,16 @@
 package dev.joewilliams.easycasts.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+@Entity
 data class Podcast(
+    @PrimaryKey(autoGenerate = false)
     @SerialName("collectionId")
-    val id: Long?,
+    val id: Long,
     @SerialName("collectionName")
     val name: String,
     @SerialName("feedUrl")

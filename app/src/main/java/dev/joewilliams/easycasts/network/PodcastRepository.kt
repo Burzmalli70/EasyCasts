@@ -2,12 +2,15 @@ package dev.joewilliams.easycasts.network
 
 import android.util.Log
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import dev.joewilliams.easycasts.App
 import dev.joewilliams.easycasts.model.Podcast
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 
 class PodcastRepository {
+
+    private val database = App.sharedInstance.database
 
     private val podcastApi by lazy {
         setupItunesApi()
