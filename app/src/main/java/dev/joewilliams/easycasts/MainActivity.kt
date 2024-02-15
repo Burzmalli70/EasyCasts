@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import dev.joewilliams.easycasts.ui.compose.MainBottomNavigationBar
@@ -27,7 +25,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             EasyCastsTheme {
-                val state by viewModel.mainUiFlow.collectAsState()
                 Scaffold(
                     modifier = Modifier
                         .background(color = MaterialTheme.colorScheme.background)
@@ -35,9 +32,7 @@ class MainActivity : ComponentActivity() {
                     bottomBar = {
                         MainBottomNavigationBar(
                             navController = navController
-                        ) {
-
-                        }
+                        )
                     }
                 ) {
                     Box(

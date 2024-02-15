@@ -18,6 +18,12 @@ class PodcastRepository {
 
     private val converter = Json { ignoreUnknownKeys = true }
 
+    suspend fun getPodcasts(): List<Podcast> {
+        return database.podcastDao().allPodcasts()
+    }
+
+    val subscribedPodcasts = database.podcastDao().allPodcastsFlow()
+
     private fun setupItunesApi(): ItunesApi {
         val retrofit = Retrofit.Builder()
             .baseUrl(ITUNES_URL)
@@ -39,6 +45,17 @@ class PodcastRepository {
             emptyList()
         }
     }
+
+    suspend fun addPodcast(podcast: Podcast) {
+        database.podcastDao().insertPodcast(podcast)
+    }
+
+    suspend fun removePodcast(podcast: Podcast) {
+        podcast.sourceUri?.let { uri ->
+            database.podcastDao().deleteByUri(uri)
+        }
+    }
+
 
     companion object {
         const val ITUNES_URL = "https://itunes.apple.com"

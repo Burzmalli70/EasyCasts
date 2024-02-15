@@ -7,32 +7,44 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SearchBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import dev.joewilliams.easycasts.viewmodel.MainViewModel
+import dev.joewilliams.easycasts.model.Podcast
+import dev.joewilliams.easycasts.viewmodel.MainUiState
 
 @Composable
 fun Search(
     modifier: Modifier = Modifier,
-    viewModel: MainViewModel
+    searchState: State<MainUiState.Search>,
+    podcastListState: State<List<Podcast>>,
+    queryChanged: (String?) -> Unit,
+    doSearch: (String?) -> Unit,
+    addRemovePodcast: (Podcast) -> Unit,
+    showPodcastDetail: (Podcast) -> Unit
 ) {
-    val searchState by viewModel.searchFlow.collectAsState()
+    val searchResults by searchState
+    val podcasts by podcastListState
+    val uriMap = podcasts.map { pod -> pod.sourceUri ?: "" }
     SearchBar(
         modifier = modifier,
-        query = searchState.query ?: "",
-        onQueryChange = { viewModel.updateSearch(it) },
-        onSearch = { viewModel.searchPodcasts(it) },
+        query = searchResults.query ?: "",
+        onQueryChange = { queryChanged.invoke(it) },
+        onSearch = { doSearch.invoke(it) },
         active = true,
         onActiveChange = {}
     ) {
         LazyColumn {
-            items(searchState.results?.size ?: 0) {
-                val result = searchState.results?.get(it) ?: return@items
+            items(searchResults.results?.size ?: 0) {
+                val result = searchResults.results?.get(it) ?: return@items
                 PodcastPreviewCard(
                     modifier = Modifier.fillMaxWidth(),
-                    podcast = result
-                )
+                    podcast = result,
+                    isSubscribed = uriMap.contains(result.sourceUri),
+                    onSubscribeButtonClicked = { addRemovePodcast.invoke(result) }
+                ) {
+                    showPodcastDetail(result)
+                }
             }
         }
     }

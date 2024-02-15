@@ -1,9 +1,12 @@
 package dev.joewilliams.easycasts.ui.compose
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,12 +27,15 @@ fun PodcastDetail(
 @Composable
 fun PodcastPreviewCard(
     modifier: Modifier = Modifier,
-    podcast: Podcast
+    podcast: Podcast,
+    isSubscribed: Boolean,
+    onSubscribeButtonClicked: () -> Unit,
+    onPodcastClicked: () -> Unit
 ) {
     ConstraintLayout(
-        modifier = modifier
+        modifier = modifier.clickable { onPodcastClicked.invoke() }
     ) {
-        val (image, title, blurb) = createRefs()
+        val (image, title, blurb, subBtn) = createRefs()
 
         AsyncImage(
             modifier = Modifier
@@ -67,6 +73,18 @@ fun PodcastPreviewCard(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
+        val startBarrier = createStartBarrier(blurb, title)
+        val iconId = if (isSubscribed) R.drawable.ic_unsubscribe else R.drawable.ic_add_circle
+        Icon(
+            modifier = Modifier.constrainAs(subBtn) {
+                end.linkTo(parent.end)
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                start.linkTo(startBarrier)
+            }.clickable { onSubscribeButtonClicked.invoke() },
+            painter = painterResource(id = iconId),
+            contentDescription = null
+        )
     }
 }
 
@@ -81,6 +99,9 @@ fun PodcastPreviewCardPreview() {
             smallImgUrl = null,
             largeImgUrl = null,
             sourceUri = ""
-        )
+        ),
+        isSubscribed = false,
+        onPodcastClicked = {},
+        onSubscribeButtonClicked = {}
     )
 }

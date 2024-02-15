@@ -13,7 +13,10 @@ import kotlinx.coroutines.flow.Flow
 interface PodcastDao {
 
     @Query("SELECT * FROM Podcast")
-    fun allPodcasts(): Flow<List<Podcast>>
+    fun allPodcastsFlow(): Flow<List<Podcast>>
+
+    @Query("SELECT * FROM Podcast")
+    suspend fun allPodcasts(): List<Podcast>
 
     @Transaction
     @Query("SELECT * FROM Podcast WHERE id IS (:id) LIMIT 1")
@@ -37,4 +40,7 @@ interface PodcastDao {
 
     @Update
     suspend fun updatePodcast(podcast: Podcast)
+
+    @Query("DELETE FROM podcast WHERE sourceUri = :uri")
+    suspend fun deleteByUri(uri: String)
 }

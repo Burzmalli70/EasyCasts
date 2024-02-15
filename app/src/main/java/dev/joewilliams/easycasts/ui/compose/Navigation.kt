@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -20,8 +21,7 @@ import dev.joewilliams.easycasts.viewmodel.MainViewModel
 @Composable
 fun MainBottomNavigationBar(
     modifier: Modifier = Modifier,
-    navController: NavController,
-    onItemClick: () -> Unit
+    navController: NavController
 ) {
     NavigationBar(
         modifier = modifier
@@ -65,13 +65,19 @@ fun NavigationGraph(navController: NavHostController, viewModel: MainViewModel) 
         startDestination = NavScreen.PodcastList.route
     ) {
         composable(route = NavScreen.PodcastList.route) {
-            PodcastGrid()
+            PodcastGrid(podcastListState = viewModel.subscribedPodcastsDirect.collectAsStateWithLifecycle())
         }
         composable(route = NavScreen.EpisodeList.route) {
-            EpisodeDetail()
+
         }
         composable(route = NavScreen.Search.route) {
-            Search(viewModel = viewModel)
+            Search(
+                searchState = viewModel.searchFlow.collectAsStateWithLifecycle(),
+                podcastListState = viewModel.subscribedPodcastsDirect.collectAsStateWithLifecycle(),
+                queryChanged = viewModel::updateSearch,
+                doSearch = viewModel::searchPodcasts,
+                addRemovePodcast = viewModel::addRemovePodcast
+            ) {}
         }
     }
 }
