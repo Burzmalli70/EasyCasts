@@ -65,10 +65,13 @@ fun NavigationGraph(navController: NavHostController, viewModel: MainViewModel) 
         startDestination = NavScreen.PodcastList.route
     ) {
         composable(route = NavScreen.PodcastList.route) {
-            PodcastGrid(podcastListState = viewModel.subscribedPodcastsDirect.collectAsStateWithLifecycle())
+            PodcastGrid(podcastListState = viewModel.subscribedPodcastsDirect.collectAsStateWithLifecycle()) {
+                viewModel.selectedPodcast.value = it
+                navController.navigate(NavScreen.EpisodeList.route)
+            }
         }
         composable(route = NavScreen.EpisodeList.route) {
-            PodcastDetail(podcastState = viewModel.selectedPodcast, episodeState = viewModel.selectedEpisode)
+            PodcastDetail(viewModel = viewModel, podcastState = viewModel.selectedPodcast, episodeState = viewModel.selectedEpisode)
         }
         composable(route = NavScreen.Search.route) {
             Search(

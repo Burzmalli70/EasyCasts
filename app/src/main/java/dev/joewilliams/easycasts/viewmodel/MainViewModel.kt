@@ -34,6 +34,9 @@ class MainViewModel : ViewModel() {
     private val mutableSelectedEpisode: MutableStateFlow<Episode?> = MutableStateFlow(null)
     val selectedEpisode = mutableSelectedEpisode
 
+    private val mutableEpisodeList: MutableStateFlow<List<Episode>?> = MutableStateFlow(null)
+    val episodeList = mutableEpisodeList
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             podcastsMutableStateFlow.emit(podcastRepository.getPodcasts())
@@ -70,5 +73,10 @@ class MainViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    suspend fun fetchPodcastEpisodes(podcast: Podcast) {
+        mutableEpisodeList.emit(null)
+        mutableEpisodeList.emit(podcastRepository.getPodcastEpisodes(podcast))
     }
 }

@@ -6,6 +6,8 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import dev.joewilliams.easycasts.App
 import dev.joewilliams.easycasts.model.Episode
 import dev.joewilliams.easycasts.model.Podcast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import org.xmlpull.v1.XmlPullParser
@@ -67,13 +69,27 @@ class PodcastRepository {
         }
     }
 
+    suspend fun getPodcastEpisodes(podcast: Podcast): List<Episode>? {
+        return withContext(Dispatchers.IO) {
+            podcast.sourceUri?.let {
+                val parser = Xml.newPullParser()
+                val url = URL(it)
+                val iStream = url.openStream()
+                parser.setInput(iStream, null)
+                parser.toEpisodes()
+            }
+        }
+    }
+
     suspend fun parseUrlForPodcast(urlStr: String?): Podcast? {
-        return urlStr?.let {
-            val parser = Xml.newPullParser()
-            val url = URL(it)
-            val iStream = url.openStream()
-            parser.setInput(iStream, null)
-            parser.toPodcast()
+        return withContext(Dispatchers.IO) {
+             urlStr?.let {
+                val parser = Xml.newPullParser()
+                val url = URL(it)
+                val iStream = url.openStream()
+                parser.setInput(iStream, null)
+                parser.toPodcast()
+            }
         }
     }
 
@@ -134,6 +150,59 @@ private fun XmlPullParser.toPodcast(): Podcast? {
     }
 
     return if (podcast.name.isEmpty()) null else podcast
+}
+
+private fun XmlPullParser.toEpisodes(): List<Episode>? {
+    var podcast = Podcast()
+    var parsingEpisodes = false
+    val episodes = mutableListOf<Episode>()
+    var currentEpisode: Episode? = null
+    while (eventType != XmlPullParser.END_DOCUMENT) {
+        when(eventType) {
+            XmlPullParser.START_TAG -> {
+                if (parsingEpisodes) {
+                    if (name == ITEM_TAG) {
+                        currentEpisode = Episode()
+                    } else {
+                        when(name) {
+                            TITLE_TAG -> currentEpisode = currentEpisode?.copy(title = nextText())
+                            LINK_TAG -> currentEpisode = currentEpisode?.copy(sourceUri = nextText())
+                            DATE_TAG -> currentEpisode = currentEpisode?.copy(publishedDate = nextText())
+                            DESCRIPTION_TAG -> currentEpisode = currentEpisode?.copy(description = nextText())
+                        }
+                    }
+                } else {
+                    when (name) {
+                        ITEM_TAG -> parsingEpisodes = true
+                        TITLE_TAG -> podcast = podcast.copy(name = nextText())
+                        DESCRIPTION_TAG -> podcast = podcast.copy(description = nextText())
+                        IMG_TAG -> {
+                            do {
+                                next()
+                            } while(name != URL_TAG && name != IMG_TAG)
+                            if (name == URL_TAG) {
+                                podcast = podcast.copy(
+                                    largeImgUrl = nextText()
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            XmlPullParser.END_TAG -> {
+                when(name) {
+                    ITEM_TAG -> {
+                        currentEpisode?.let {
+                            episodes.add(it)
+                        }
+                    }
+                }
+            }
+        }
+        next()
+    }
+
+    return if (podcast.name.isEmpty()) null else episodes
 }
 
 const val TITLE_TAG = "title"
