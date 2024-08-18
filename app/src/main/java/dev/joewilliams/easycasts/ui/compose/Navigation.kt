@@ -68,7 +68,7 @@ fun NavigationGraph(navController: NavHostController, viewModel: MainViewModel) 
             PodcastGrid(podcastListState = viewModel.subscribedPodcastsDirect.collectAsStateWithLifecycle())
         }
         composable(route = NavScreen.EpisodeList.route) {
-
+            PodcastDetail(podcastState = viewModel.selectedPodcast, episodeState = viewModel.selectedEpisode)
         }
         composable(route = NavScreen.Search.route) {
             Search(

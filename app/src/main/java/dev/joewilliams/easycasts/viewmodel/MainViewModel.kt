@@ -65,7 +65,7 @@ class MainViewModel : ViewModel() {
                 } else {
                     podcastRepository.addPodcast(podcast)
                 }
-                subscribedPodcasts.collectLatest {  pods ->
+                subscribedPodcasts.collectLatest { pods ->
                     podcastsMutableStateFlow.emit(pods)
                 }
             }
